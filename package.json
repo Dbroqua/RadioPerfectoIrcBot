@@ -1,0 +1,16 @@
+{
+    "name": "RadioPerfectoIrcBot",
+    "version": "0.0.0",
+    "description": "Simple IRC bot for Radio Perfecto current playing song",
+    "main": "index.js",
+    "dependencies": {
+        "irc": "^0.5.2",
+        "irc-colors": "^1.4.2",
+        "request": "^2.85.0"
+    },
+    "scripts": {
+        "start": "node index.js"
+    },
+    "author": "Damien Broqua <contact@darkou.fr> (https://www.darkou.fr)",
+    "license": "Apache"
+}
