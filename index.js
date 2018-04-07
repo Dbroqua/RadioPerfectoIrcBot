@@ -4,10 +4,17 @@ const irc = require("irc"),
 
 // Create the configuration
 let config = {
-        channels: ["#radioperfecto"],
         server: "irc.freenode.net",
-        botName: "Doro"
+        botName: "Doro",
+        options: {
+            channels: ["#radioperfectobottest"],
+            // channels: ["#radioperfecto"],
+            realName: 'Radio Perfecto Playing Bot'
+        }
     },
+    userToNotify = ['darkou', 'brunus'],
+    requestedArtists = ['trust', 'ac/dc', 'foo fighters', 'no one is innocent', 'the rolling stones', 'blue oyster cult', 'judas priest', 'misfits', 'black sabbath', 'ozzy osbourne', 'metallica', 'aerosmith', 'queen', 'fff', 'patti smith'],
+    requestedBadArtists = ['taxi girl', 'kiss', 'motley crue', 'depeche mode', 'u2'],
     pause = false,
     previousSong = null;
 
@@ -25,7 +32,14 @@ let playing = function(callback) {
     },
     say = function(artist, song) {
         if (!pause) {
-            bot.say(config.channels[0], c.rainbow(artist + ' - ' + song));
+            let _artist = artist.toLowerCase();
+            if (requestedArtists.indexOf(_artist) > -1) {
+                bot.say(config.options.channels[0], c.blue(artist + ' - ' + song + ' < c\'est le moment de monter le son ' + userToNotify.toString().replace(/,/g, ', ')));
+            } else if (requestedBadArtists.indexOf(_artist) > -1) {
+                bot.say(config.options.channels[0], c.red(artist + ' - ' + song + ' /!\\ Alerte son moisi ! ' + userToNotify.toString().replace(/,/g, ', ')));
+            } else {
+                bot.say(config.options.channels[0], artist + ' - ' + song);
+            }
         }
     },
     streaming = function() {
@@ -41,16 +55,12 @@ let playing = function(callback) {
     };
 
 // Create the bot name
-var bot = new irc.Client(config.server, config.botName, {
-    channels: config.channels
-});
+var bot = new irc.Client(config.server, config.botName, config.options);
 
 // Listen for joins
 bot.addListener("join", function(channel, who) {
     // Welcome them in!
     bot.say(channel, c.red("I'm so Bad..."));
-
-    streaming();
 });
 
 // Listen for any message, say to him/her in the room
@@ -61,11 +71,17 @@ bot.addListener("message", function(from, to, text, message) {
             break;
         case 'stop':
             pause = true;
-            bot.say(config.channels[0], 'Ok... tu préfères Motley Crue...');
+            bot.say(config.options.channels[0], 'Ok... tu préfères Motley Crue...');
             break;
         case 'start':
             pause = false;
-            bot.say(config.channels[0], 'We are Motörhead and we play Rock\'n\'Roll!');
+            bot.say(config.options.channels[0], 'We are Motörhead and we play Rock\'n\'Roll!');
             break;
     }
 });
+
+bot.addListener('error', function(message) {
+    console.log('error: ', message);
+});
+
+streaming();
