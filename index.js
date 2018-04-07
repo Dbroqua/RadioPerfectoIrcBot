@@ -7,13 +7,12 @@ let config = {
         server: "irc.freenode.net",
         botName: "Doro",
         options: {
-            channels: ["#radioperfectobottest"],
-            // channels: ["#radioperfecto"],
+            channels: ["#radioperfecto"],
             realName: 'Radio Perfecto Playing Bot'
         }
     },
     userToNotify = ['darkou', 'brunus'],
-    requestedArtists = ['trust', 'ac/dc', 'foo fighters', 'no one is innocent', 'the rolling stones', 'blue oyster cult', 'judas priest', 'misfits', 'black sabbath', 'ozzy osbourne', 'metallica', 'aerosmith', 'queen', 'fff', 'patti smith'],
+    requestedArtists = ['trust', 'ac/dc', 'foo fighters', 'no one is innocent', 'the rolling stones', 'blue oyster cult', 'judas priest', 'misfits', 'black sabbath', 'ozzy osbourne', 'metallica', 'aerosmith', 'queen', 'fff', 'patti smith', 'the pixies'],
     requestedBadArtists = ['taxi girl', 'kiss', 'motley crue', 'depeche mode', 'u2'],
     pause = false,
     previousSong = null;
@@ -60,7 +59,10 @@ var bot = new irc.Client(config.server, config.botName, config.options);
 // Listen for joins
 bot.addListener("join", function(channel, who) {
     // Welcome them in!
-    bot.say(channel, c.red("I'm so Bad..."));
+    if (who !== config.botName) {
+        bot.say(channel, 'Hello ' + who + '! Have a metal day! \m/(-.-)\m/');
+    }
+
 });
 
 // Listen for any message, say to him/her in the room
