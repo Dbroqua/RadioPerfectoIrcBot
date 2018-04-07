@@ -18,6 +18,8 @@ Show all first action level
 
 Available options:
 
+* !artists list good
+* !artists list bad
 * !artists add good <artist name>
 * !artists add bad <artist name>
 * !artists del good <artist name>
@@ -28,6 +30,8 @@ Available options:
 
 Available options:
 
+* !songs list good
+* !songs list bad
 * !songs add good <song name>
 * !songs add bad <song name>
 * !songs del good <song name>
