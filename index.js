@@ -60,7 +60,7 @@ var bot = new irc.Client(config.server, config.botName, config.options);
 bot.addListener("join", function(channel, who) {
     // Welcome them in!
     if (who !== config.botName) {
-        bot.say(channel, 'Hello ' + who + '! Have a metal day! \m/(-.-)\m/');
+        bot.say(channel, 'Hello ' + who + '! Have a metal day! \\m/(-.-)\\m/');
     }
 
 });
