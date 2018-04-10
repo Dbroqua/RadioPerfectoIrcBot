@@ -49,7 +49,7 @@ class DB {
             })
             .limit(1)
             .exec(function(err, last) {
-                if (err || (last[0] !== undefined && last[0].artist !== values.artist && last[0].songName !== values.songName)) {
+                if (err || last.length === 0 || (last[0] !== undefined && last[0].artist !== values.artist && last[0].songName !== values.songName)) {
                     let history = new models.histories(values);
                     history.save();
                 }
@@ -65,9 +65,8 @@ class DB {
             .limit(limit || 10)
             .exec(function(err, histories) {
                 if (!err) {
-
                     histories.forEach(function(history) {
-                        action(history.artist, history.songName);
+                        action("- " + history.artist + ' - ' + history.songName);
                     });
                 }
             });
