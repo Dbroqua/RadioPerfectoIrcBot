@@ -27,6 +27,15 @@ class Notifications {
                         break;
                 }
                 break;
+            case 'list':
+                switch (_actions[2]) {
+                    case 'good':
+                    case 'god':
+                    case 'bad':
+                        that.list(from, _actions[2], data, pm);
+                        break;
+                }
+                break;
         }
     }
 
@@ -73,6 +82,31 @@ class Notifications {
                 pm(from, '#500 - Impossible de supprimer ' + data[that.attribute] + ' (1)');
             } else {
                 pm(from, data[that.attribute] + ' correctement supprimé de la liste des ' + notification);
+            }
+        });
+    }
+
+    list(from, notification, data, pm) {
+        let that = this,
+            item = {
+                user: from,
+                notification: notification,
+                property: that.type
+            };
+
+        that.db.find('notifications', item, function(err, res) {
+            if (err) {
+                pm(from, '#500 - Impossible de charger cette liste');
+            } else {
+                if (res.length === 0) {
+                    pm(from, 'Cette liste est vide');
+                } else {
+                    pm(from, 'Ta liste ' + notification + ' contient :');
+                    res.forEach(function(item) {
+                        pm(from, '- ' + item.value);
+                    });
+                    pm(from, '---------');
+                }
             }
         });
     }
