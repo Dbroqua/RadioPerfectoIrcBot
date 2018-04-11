@@ -1,6 +1,8 @@
-class Artists {
-    constructor(db) {
+class Notifications {
+    constructor(type, db) {
         this.db = db;
+        this.type = type;
+        this.attribute = (type == 'artist' ? 'artist' : 'songName');
     }
 
     action(from, text, data, pm) {
@@ -19,6 +21,7 @@ class Artists {
             case 'del':
                 switch (_actions[2]) {
                     case 'good':
+                    case 'god':
                     case 'bad':
                         that.remove(from, _actions[2], data, pm);
                         break;
@@ -32,24 +35,25 @@ class Artists {
             item = {
                 user: from,
                 notification: notification,
-                property: 'artist',
-                value: data.artist
+                property: that.type,
+                value: data[that.attribute]
             };
 
         that.db.find('notifications', item, function(err, res) {
             if (err) {
-                pm(from, '#500 - Impossible d\'ajouter cet artiste (1)');
+                pm(from, '#500 - Impossible de sauvegarder cette demande (1)');
             } else {
                 if (res.length === 0) {
                     that.db.save('notifications', item, function(err) {
+                        console.log(err);
                         if (err) {
-                            pm(from, '#500 - Impossible d\'ajouter cet artiste (2)');
+                            pm(from, '#500 - Impossible de sauvegarder cette demande (2)');
                         } else {
-                            pm(from, 'Artiste ' + data.artist + ' correctement ajouté dans la liste des ' + notification);
+                            pm(from, data[that.attribute] + ' correctement ajouté dans la liste des ' + notification);
                         }
                     });
                 } else {
-                    pm(from, 'l\'artiste ' + data.artist + ' est déja dans ta liste des ' + notification);
+                    pm(from, data[that.attribute] + ' est déja dans ta liste des ' + notification);
                 }
             }
         });
@@ -60,18 +64,18 @@ class Artists {
             item = {
                 user: from,
                 notification: notification,
-                property: 'artist',
-                value: data.artist
+                property: that.type,
+                value: data[that.attribute]
             };
 
         that.db.renove('notifications', item, function(err, res) {
             if (err) {
-                pm(from, '#500 - Impossible de supprimer cet artiste (1)');
+                pm(from, '#500 - Impossible de supprimer ' + data[that.attribute] + ' (1)');
             } else {
-                pm(from, 'Artiste ' + data.artist + ' correctement supprimé de la liste des ' + notification);
+                pm(from, data[that.attribute] + ' correctement supprimé de la liste des ' + notification);
             }
         });
     }
 }
 
-module.exports = Artists;
+module.exports = Notifications;

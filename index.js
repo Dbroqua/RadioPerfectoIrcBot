@@ -1,11 +1,12 @@
 const irc = require("irc"),
     c = require('irc-colors'),
     request = require('request'),
-    artists = require('./actions/artists'),
+    notifications = require('./libs/notifications'),
     db = require('./libs/db');
 
 let Db = new db(),
-    ArtistAction = new artists(Db);
+    Artists = new notifications('artist', Db),
+    Songs = new notifications('songName', Db);
 
 // Create the configuration
 let bot,
@@ -17,9 +18,6 @@ let bot,
             realName: 'Radio Perfecto Playing Bot'
         }
     },
-    userToNotify = ['darkou', 'brunus'],
-    requestedArtists = ['trust', 'ac/dc', 'foo fighters', 'no one is innocent', 'the rolling stones', 'blue oyster cult', 'judas priest', 'misfits', 'black sabbath', 'ozzy osbourne', 'metallica', 'aerosmith', 'queen', 'fff', 'patti smith', 'the pixies'],
-    requestedBadArtists = ['taxi girl', 'kiss', 'motley crue', 'depeche mode', 'u2'],
     pause = false,
     previousSong = null,
     currentSong = null;
@@ -100,8 +98,10 @@ bot.addListener("message", function(from, to, text, message) {
             Db.last(say);
             break;
         default:
-            if (text.indexOf('!artists') === 0) {
-                ArtistAction.action(from, text, currentSong, pm);
+            if (text.indexOf('!artist') === 0) {
+                Artists.action(from, text, currentSong, pm);
+            } else if (text.indexOf('!song') === 0) {
+                Songs.action(from, text, currentSong, pm);
             }
     }
 });
