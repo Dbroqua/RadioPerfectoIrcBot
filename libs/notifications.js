@@ -130,7 +130,7 @@ class Notifications {
         let that = this,
             item = {
                 property: that.type,
-                value: new RegExp('^' + value + '$', "i")
+                value: new RegExp('^' + value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '$', "i")
             };
 
         that.db.find('notifications', item, function(err, res) {
