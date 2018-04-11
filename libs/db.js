@@ -15,7 +15,7 @@ let schemas = {
             user: String,
             notification: {
                 type: String,
-                enum: ['good', 'bad']
+                enum: ['good', 'god', 'bad']
             },
             property: {
                 type: String,

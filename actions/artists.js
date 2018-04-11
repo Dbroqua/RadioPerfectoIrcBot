@@ -10,6 +10,7 @@ class Artists {
             case 'add':
                 switch (_actions[2]) {
                     case 'good':
+                    case 'god':
                     case 'bad':
                         that.add(from, _actions[2], data, pm);
                         break;
