@@ -101,11 +101,26 @@ class Notifications {
                 if (res.length === 0) {
                     pm(from, 'Cette liste est vide');
                 } else {
-                    pm(from, 'Ta liste ' + notification + ' contient :');
+                    pm(from, 'Ta liste ' + notification + ' contient ' + res.length + ' élément(s) :');
+                    let count = 0,
+                        text = '',
+                        _send = function() {
+                            if (text !== '') {
+                                pm(from, text);
+                                text = 0;
+                            }
+                        };
+
                     res.forEach(function(item) {
-                        pm(from, '- ' + item.value);
+                        text += (text !== '' ? ', ' : '') + item.value;
+                        count++;
+                        if (count % 20 === 0) {
+                            _send();
+                            count = 0;
+                        }
                     });
-                    pm(from, '---------');
+                    _send();
+                    pm(from, '--------------------------------------------------------------');
                 }
             }
         });
