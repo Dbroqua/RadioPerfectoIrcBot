@@ -56,6 +56,8 @@ let playing = function(callback) {
                     previousSong = res.songName;
                     Db.savePlayed(res);
                     say('Now playing: ' + res.artist + ' - ' + res.songName);
+                    Artists.autoNotifyFor(res.artist, pm);
+                    Songs.autoNotifyFor(res.songName, pm);
                 }
             }
 

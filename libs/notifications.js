@@ -68,11 +68,41 @@ class Notifications {
                 value: data[that.attribute]
             };
 
-        that.db.renove('notifications', item, function(err, res) {
+        that.db.remove('notifications', item, function(err, res) {
             if (err) {
                 pm(from, '#500 - Impossible de supprimer ' + data[that.attribute] + ' (1)');
             } else {
                 pm(from, data[that.attribute] + ' correctement supprimé de la liste des ' + notification);
+            }
+        });
+    }
+
+    autoNotifyFor(value, pm) {
+        let that = this,
+            item = {
+                property: that.type,
+                value: new RegExp('^' + value + '$', "i")
+            };
+
+        that.db.find('notifications', item, function(err, res) {
+            if (err) {
+                console.log(err);
+            } else {
+                if (res.length > 0) {
+                    res.forEach(function(item) {
+                        switch (item.notification) {
+                            case 'good':
+                                pm(item.user, 'Hey! Y\'a ' + value + ' ! Monte le son !');
+                                break;
+                            case 'god':
+                                pm(item.user, 'Arrête tout, monte le son, dieu en personne revient avec ' + value + ' !');
+                                break;
+                            case 'bad':
+                                pm(item.user, 'Bon... on est d\'accord... on peut couper le son là...');
+                                break;
+                        }
+                    });
+                }
             }
         });
     }
