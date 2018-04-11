@@ -107,7 +107,7 @@ class Notifications {
                         _send = function() {
                             if (text !== '') {
                                 pm(from, text);
-                                text = 0;
+                                text = '';
                             }
                         };
 
