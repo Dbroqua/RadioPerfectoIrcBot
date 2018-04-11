@@ -79,6 +79,10 @@ class DB {
         });
     }
 
+    renove(collection, values, callback) {
+        models[collection].remove(values, callback);
+    }
+
     find(collection, query, callback) {
         models[collection]
             .find(query)
