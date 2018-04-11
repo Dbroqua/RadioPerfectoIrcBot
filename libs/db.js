@@ -79,7 +79,7 @@ class DB {
         });
     }
 
-    renove(collection, values, callback) {
+    remove(collection, values, callback) {
         models[collection].remove(values, callback);
     }
 
