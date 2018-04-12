@@ -85,7 +85,8 @@ class IrcBot {
     }
 
     pm(who, msg) {
-        this.bot.say(who, msg);
+        let that = this;
+        that.bot.say(who, msg);
     }
 
     currentSong(currentSong) {
