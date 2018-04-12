@@ -1,3 +1,7 @@
+let moment = require('moment');
+
+moment.locale('fr');
+
 class Notifications {
     constructor(type, db) {
         this.db = db;
@@ -36,6 +40,10 @@ class Notifications {
                         break;
                 }
                 break;
+            case 'lastplayed':
+                that.lastplayed(from, _actions[2], callback);
+
+                break;
         }
     }
 
@@ -46,9 +54,12 @@ class Notifications {
                 notification: notification,
                 property: that.type,
                 value: new RegExp('^' + data[that.attribute].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '$', "i")
+            },
+            query = {
+                find: item
             };
 
-        that.db.find('notifications', item, function(err, res) {
+        that.db.find('notifications', query, function(err, res) {
             if (err) {
                 callback(from, '#500 - Impossible de sauvegarder cette demande (1)');
             } else {
@@ -72,14 +83,16 @@ class Notifications {
 
     remove(from, notification, data, callback) {
         let that = this,
-            item = {
-                user: from,
-                notification: notification,
-                property: that.type,
-                value: new RegExp('^' + data[that.attribute].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '$', "i")
+            query = {
+                find: {
+                    user: from,
+                    notification: notification,
+                    property: that.type,
+                    value: new RegExp('^' + data[that.attribute].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '$', "i")
+                }
             };
 
-        that.db.find('notifications', item, function(err, res) {
+        that.db.find('notifications', query, function(err, res) {
             if (err) {
                 callback(from, '#500 - Impossible de supprimer ' + data[that.attribute] + ' (1)');
             } else {
@@ -103,13 +116,15 @@ class Notifications {
 
     list(from, notification, data, callback) {
         let that = this,
-            item = {
-                user: from,
-                notification: notification,
-                property: that.type
+            query = {
+                find: {
+                    user: from,
+                    notification: notification,
+                    property: that.type
+                }
             };
 
-        that.db.find('notifications', item, function(err, res) {
+        that.db.find('notifications', query, function(err, res) {
             if (err) {
                 callback(from, '#500 - Impossible de charger cette liste');
             } else {
@@ -143,12 +158,14 @@ class Notifications {
 
     autoNotifyFor(value, callback) {
         let that = this,
-            item = {
-                property: that.type,
-                value: new RegExp('^' + value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '$', "i")
+            query = {
+                find: {
+                    property: that.type,
+                    value: new RegExp('^' + value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '$', "i")
+                }
             };
 
-        that.db.find('notifications', item, function(err, res) {
+        that.db.find('notifications', query, function(err, res) {
             if (err) {
                 console.log(err);
             } else {
@@ -166,6 +183,32 @@ class Notifications {
                                 break;
                         }
                     });
+                }
+            }
+        });
+    }
+
+    lastplayed(from, data, callback) {
+        let that = this,
+            query = {
+                find: {},
+                sort: {
+                    createdAt: 'desc'
+                },
+                limit: 1
+            };
+
+        query.find[that.type] = data;
+
+        that.db.find('histories', query, function(err, res) {
+            if (err) {
+                callback(from, '#500 - Impossible de te répondre pour le moment !');
+            } else {
+                if (res.length === 0) {
+                    callback(from, 'A priori... jamais :/');
+                } else {
+                    let date = moment(res[0].createdAt).format('DD MMMM YYYY à HH:mm');
+                    callback(from, data + ' a été joué pour la dernière fois sur cette putain de radio le ' + date);
                 }
             }
         });

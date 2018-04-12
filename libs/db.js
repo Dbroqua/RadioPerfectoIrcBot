@@ -85,10 +85,11 @@ class DB {
 
     find(collection, query, callback) {
         models[collection]
-            .find(query)
-            .sort({
+            .find(query.find)
+            .sort(query.sort || {
                 value: 'asc'
             })
+            .limit(query.limit || 1)
             .exec(callback);
     }
 };
