@@ -177,21 +177,34 @@ class Notifications {
         that.db.find('notifications', query, function(err, res) {
             if (err) {
                 console.log(err);
+                callback();
             } else {
                 if (res.length > 0) {
+                    let results = [];
                     res.forEach(function(item) {
                         switch (item.notification) {
                             case 'good':
-                                callback(item.user, 'Hey! Y\'a ' + value + ' ! Monte le son !');
+                                results.push({
+                                    to: item.user,
+                                    msg: 'Hey! Y\'a ' + value + ' ! Monte le son !'
+                                });
                                 break;
                             case 'god':
-                                callback(item.user, 'Arrête tout, monte le son, dieu en personne revient avec ' + value + ' !');
+                                results.push({
+                                    to: item.user,
+                                    msg: 'Arrête tout, monte le son, dieu en personne revient avec ' + value + ' !'
+                                });
                                 break;
                             case 'bad':
-                                callback(item.user, 'Bon... on est d\'accord... on peut couper le son là...');
+                                results.push({
+                                    to: item.user,
+                                    msg: 'Bon... on est d\'accord... on peut couper le son là...'
+                                });
                                 break;
                         }
                     });
+
+                    callback(results);
                 }
             }
         });
