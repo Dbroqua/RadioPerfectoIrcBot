@@ -45,7 +45,7 @@ class Notifications {
                 user: from,
                 notification: notification,
                 property: that.type,
-                value: data[that.attribute]
+                value: new RegExp('^' + data[that.attribute].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '$', "i")
             };
 
         that.db.find('notifications', item, function(err, res) {
@@ -53,6 +53,8 @@ class Notifications {
                 callback(from, '#500 - Impossible de sauvegarder cette demande (1)');
             } else {
                 if (res.length === 0) {
+                    item.value = data[that.attribute];
+
                     that.db.save('notifications', item, function(err) {
                         console.log(err);
                         if (err) {
@@ -74,14 +76,27 @@ class Notifications {
                 user: from,
                 notification: notification,
                 property: that.type,
-                value: data[that.attribute]
+                value: new RegExp('^' + data[that.attribute].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '$', "i")
             };
 
-        that.db.remove('notifications', item, function(err, res) {
+        that.db.find('notifications', item, function(err, res) {
             if (err) {
                 callback(from, '#500 - Impossible de supprimer ' + data[that.attribute] + ' (1)');
             } else {
-                callback(from, data[that.attribute] + ' correctement supprimé de la liste des ' + notification);
+                if (res.length === 0) {
+                    callback(from, '#404 - ' + data[that.attribute] + ' non trouvé dans cette liste');
+                } else {
+
+                    that.db.remove('notifications', {
+                        _id: res[0]._id
+                    }, function(err, res) {
+                        if (err) {
+                            callback(from, '#500 - Impossible de supprimer ' + data[that.attribute] + ' (1)');
+                        } else {
+                            callback(from, data[that.attribute] + ' correctement supprimé de la liste des ' + notification);
+                        }
+                    });
+                }
             }
         });
     }
