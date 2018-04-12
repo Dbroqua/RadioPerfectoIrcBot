@@ -83,14 +83,18 @@ class DB {
         models[collection].remove(values, callback);
     }
 
-    find(collection, query, callback) {
-        models[collection]
-            .find(query.find)
-            .sort(query.sort || {
-                value: 'asc'
-            })
-            .limit(query.limit || 1)
-            .exec(callback);
+    find(collection, params, callback) {
+        let query = models[collection]
+            .find(params.find);
+
+        if (params.sort !== undefined) {
+            query.sort(params.sort);
+        }
+        if (params.limit !== undefined) {
+            query.limit(params.limit);
+        }
+
+        query.exec(callback);
     }
 };
 

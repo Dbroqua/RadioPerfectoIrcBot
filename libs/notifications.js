@@ -9,6 +9,10 @@ class Notifications {
         this.attribute = (type == 'artist' ? 'artist' : 'songName');
     }
 
+    _formatString(string) {
+        return new RegExp(string.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '$', "i");
+    }
+
     action(from, text, data, callback) {
         let _actions = text.split(' '),
             that = this;
@@ -53,10 +57,11 @@ class Notifications {
                 user: from,
                 notification: notification,
                 property: that.type,
-                value: new RegExp('^' + data[that.attribute].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '$', "i")
+                value: that._formatString(data[that.attribute])
             },
             query = {
-                find: item
+                find: item,
+                limit: 1
             };
 
         that.db.find('notifications', query, function(err, res) {
@@ -88,8 +93,9 @@ class Notifications {
                     user: from,
                     notification: notification,
                     property: that.type,
-                    value: new RegExp('^' + data[that.attribute].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '$', "i")
-                }
+                    value: that._formatString(data[that.attribute])
+                },
+                limit: 1
             };
 
         that.db.find('notifications', query, function(err, res) {
@@ -121,6 +127,9 @@ class Notifications {
                     user: from,
                     notification: notification,
                     property: that.type
+                },
+                sort: {
+                    value: 'asc'
                 }
             };
 
@@ -161,7 +170,7 @@ class Notifications {
             query = {
                 find: {
                     property: that.type,
-                    value: new RegExp('^' + value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '$', "i")
+                    value: that._formatString(value)
                 }
             };
 
@@ -198,7 +207,7 @@ class Notifications {
                 limit: 1
             };
 
-        query.find[that.type] = data;
+        query.find[that.type] = that._formatString(data);
 
         that.db.find('histories', query, function(err, res) {
             if (err) {
