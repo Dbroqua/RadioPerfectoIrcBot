@@ -86,6 +86,9 @@ class DB {
     find(collection, query, callback) {
         models[collection]
             .find(query)
+            .sort({
+                value: 'asc'
+            })
             .exec(callback);
     }
 };
