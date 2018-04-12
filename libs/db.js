@@ -56,7 +56,7 @@ class DB {
             });
     }
 
-    last(action, limit) {
+    last(callback, limit) {
         models.histories
             .find({})
             .sort({
@@ -66,7 +66,7 @@ class DB {
             .exec(function(err, histories) {
                 if (!err) {
                     histories.forEach(function(history) {
-                        action("- " + history.artist + ' - ' + history.songName);
+                        callback("- " + history.artist + ' - ' + history.songName);
                     });
                 }
             });

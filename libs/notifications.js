@@ -5,7 +5,7 @@ class Notifications {
         this.attribute = (type == 'artist' ? 'artist' : 'songName');
     }
 
-    action(from, text, data, pm) {
+    action(from, text, data, callback) {
         let _actions = text.split(' '),
             that = this;
         switch (_actions[1]) {
@@ -14,7 +14,7 @@ class Notifications {
                     case 'good':
                     case 'god':
                     case 'bad':
-                        that.add(from, _actions[2], data, pm);
+                        that.add(from, _actions[2], data, callback);
                         break;
                 }
                 break;
@@ -23,7 +23,7 @@ class Notifications {
                     case 'good':
                     case 'god':
                     case 'bad':
-                        that.remove(from, _actions[2], data, pm);
+                        that.remove(from, _actions[2], data, callback);
                         break;
                 }
                 break;
@@ -32,14 +32,14 @@ class Notifications {
                     case 'good':
                     case 'god':
                     case 'bad':
-                        that.list(from, _actions[2], data, pm);
+                        that.list(from, _actions[2], data, callback);
                         break;
                 }
                 break;
         }
     }
 
-    add(from, notification, data, pm) {
+    add(from, notification, data, callback) {
         let that = this,
             item = {
                 user: from,
@@ -50,25 +50,25 @@ class Notifications {
 
         that.db.find('notifications', item, function(err, res) {
             if (err) {
-                pm(from, '#500 - Impossible de sauvegarder cette demande (1)');
+                callback(from, '#500 - Impossible de sauvegarder cette demande (1)');
             } else {
                 if (res.length === 0) {
                     that.db.save('notifications', item, function(err) {
                         console.log(err);
                         if (err) {
-                            pm(from, '#500 - Impossible de sauvegarder cette demande (2)');
+                            callback(from, '#500 - Impossible de sauvegarder cette demande (2)');
                         } else {
-                            pm(from, data[that.attribute] + ' correctement ajouté dans la liste des ' + notification);
+                            callback(from, data[that.attribute] + ' correctement ajouté dans la liste des ' + notification);
                         }
                     });
                 } else {
-                    pm(from, data[that.attribute] + ' est déja dans ta liste des ' + notification);
+                    callback(from, data[that.attribute] + ' est déja dans ta liste des ' + notification);
                 }
             }
         });
     }
 
-    remove(from, notification, data, pm) {
+    remove(from, notification, data, callback) {
         let that = this,
             item = {
                 user: from,
@@ -79,14 +79,14 @@ class Notifications {
 
         that.db.remove('notifications', item, function(err, res) {
             if (err) {
-                pm(from, '#500 - Impossible de supprimer ' + data[that.attribute] + ' (1)');
+                callback(from, '#500 - Impossible de supprimer ' + data[that.attribute] + ' (1)');
             } else {
-                pm(from, data[that.attribute] + ' correctement supprimé de la liste des ' + notification);
+                callback(from, data[that.attribute] + ' correctement supprimé de la liste des ' + notification);
             }
         });
     }
 
-    list(from, notification, data, pm) {
+    list(from, notification, data, callback) {
         let that = this,
             item = {
                 user: from,
@@ -96,17 +96,17 @@ class Notifications {
 
         that.db.find('notifications', item, function(err, res) {
             if (err) {
-                pm(from, '#500 - Impossible de charger cette liste');
+                callback(from, '#500 - Impossible de charger cette liste');
             } else {
                 if (res.length === 0) {
-                    pm(from, 'Cette liste est vide');
+                    callback(from, 'Cette liste est vide');
                 } else {
-                    pm(from, 'Ta liste ' + notification + ' contient ' + res.length + ' élément(s) :');
+                    callback(from, 'Ta liste ' + notification + ' contient ' + res.length + ' élément(s) :');
                     let count = 0,
                         text = '',
                         _send = function() {
                             if (text !== '') {
-                                pm(from, text);
+                                callback(from, text);
                                 text = '';
                             }
                         };
@@ -120,13 +120,13 @@ class Notifications {
                         }
                     });
                     _send();
-                    pm(from, '--------------------------------------------------------------');
+                    callback(from, '--------------------------------------------------------------');
                 }
             }
         });
     }
 
-    autoNotifyFor(value, pm) {
+    autoNotifyFor(value, callback) {
         let that = this,
             item = {
                 property: that.type,
@@ -141,13 +141,13 @@ class Notifications {
                     res.forEach(function(item) {
                         switch (item.notification) {
                             case 'good':
-                                pm(item.user, 'Hey! Y\'a ' + value + ' ! Monte le son !');
+                                callback(item.user, 'Hey! Y\'a ' + value + ' ! Monte le son !');
                                 break;
                             case 'god':
-                                pm(item.user, 'Arrête tout, monte le son, dieu en personne revient avec ' + value + ' !');
+                                callback(item.user, 'Arrête tout, monte le son, dieu en personne revient avec ' + value + ' !');
                                 break;
                             case 'bad':
-                                pm(item.user, 'Bon... on est d\'accord... on peut couper le son là...');
+                                callback(item.user, 'Bon... on est d\'accord... on peut couper le son là...');
                                 break;
                         }
                     });
