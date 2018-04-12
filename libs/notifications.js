@@ -45,7 +45,7 @@ class Notifications {
                 }
                 break;
             case 'lastplayed':
-                that.lastplayed(from, _actions[2], callback);
+                that.lastplayed(from, text.substr(20), callback);
 
                 break;
         }
@@ -214,7 +214,7 @@ class Notifications {
                 callback(from, '#500 - Impossible de te répondre pour le moment !');
             } else {
                 if (res.length === 0) {
-                    callback(from, 'A priori... jamais :/');
+                    callback(from, 'A priori ' + data + ' n\'a jamais était joué :/');
                 } else {
                     let date = moment(res[0].createdAt).format('DD MMMM YYYY à HH:mm');
                     callback(from, data + ' a été joué pour la dernière fois sur cette putain de radio le ' + date);
