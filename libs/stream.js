@@ -34,7 +34,7 @@ class Stream {
         let that = this;
         that.getStream(function(error, res) {
             if (error) {
-                that.bot.publicMessage(err);
+                that.bot.publicMessage('Now playing: ' + error);
             } else {
                 that.currentSong = res;
                 that.bot.currentSong(that.currentSong);
