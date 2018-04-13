@@ -1,16 +1,10 @@
-let moment = require('moment');
-
-moment.locale('fr');
+let formatString = require('./helpers').formatString;
 
 class Notifications {
     constructor(type, db) {
         this.db = db;
         this.type = type;
         this.attribute = (type == 'artist' ? 'artist' : 'songName');
-    }
-
-    _formatString(string) {
-        return new RegExp(string.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '$', "i");
     }
 
     action(from, text, data, callback) {
@@ -57,7 +51,7 @@ class Notifications {
                 user: from,
                 notification: notification,
                 property: that.type,
-                value: that._formatString(data[that.attribute])
+                value: formatString(data[that.attribute])
             },
             query = {
                 find: item,
@@ -72,7 +66,6 @@ class Notifications {
                     item.value = data[that.attribute];
 
                     that.db.save('notifications', item, function(err) {
-                        console.log(err);
                         if (err) {
                             callback(from, '#500 - Impossible de sauvegarder cette demande (2)');
                         } else {
@@ -93,7 +86,7 @@ class Notifications {
                     user: from,
                     notification: notification,
                     property: that.type,
-                    value: that._formatString(data[that.attribute])
+                    value: formatString(data[that.attribute])
                 },
                 limit: 1
             };
@@ -170,14 +163,13 @@ class Notifications {
             query = {
                 find: {
                     property: that.type,
-                    value: that._formatString(value)
+                    value: formatString(value)
                 }
             };
 
         that.db.find('notifications', query, function(err, res) {
             if (err) {
                 console.log(err);
-                callback();
             } else {
                 if (res.length > 0) {
                     let results = [];
@@ -220,7 +212,7 @@ class Notifications {
                 limit: 1
             };
 
-        query.find[that.type] = that._formatString(data);
+        query.find[that.type] = formatString(data);
 
         that.db.find('histories', query, function(err, res) {
             if (err) {

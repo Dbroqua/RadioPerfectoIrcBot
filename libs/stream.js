@@ -23,7 +23,11 @@ class Stream {
         }, function(error, response, body) {
             if (response.statusCode === 200) {
                 let res = JSON.parse(body);
-                callback(null, res);
+                if (res.artist !== undefined && res.songName !== undefined) {
+                    callback(null, res);
+                } else {
+                    callback('Some good song... maybe :/', null);
+                }
             } else {
                 callback('Some good song... I think :D', null);
             }
@@ -33,9 +37,7 @@ class Stream {
     watcher() {
         let that = this;
         that.getStream(function(error, res) {
-            if (error) {
-                that.bot.publicMessage(err);
-            } else {
+            if (!error) {
                 that.currentSong = res;
                 that.bot.currentSong(that.currentSong);
                 if (that.previousSong !== res.songName) {

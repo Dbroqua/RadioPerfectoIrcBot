@@ -56,22 +56,6 @@ class DB {
             });
     }
 
-    last(callback, limit) {
-        models.histories
-            .find({})
-            .sort({
-                createdAt: 'desc'
-            })
-            .limit(limit || 10)
-            .exec(function(err, histories) {
-                if (!err) {
-                    histories.forEach(function(history) {
-                        callback("- " + history.artist + ' - ' + history.songName);
-                    });
-                }
-            });
-    }
-
     save(collection, values, callback) {
         let item = new models[collection](values);
         item.save(function(err) {
@@ -84,14 +68,16 @@ class DB {
     }
 
     find(collection, params, callback) {
-        let query = models[collection]
-            .find(params.find);
+        if (params.find === undefined) {
+            params.find = {};
+        }
+        let query = models[collection].find(params.find);
 
         if (params.sort !== undefined) {
-            query.sort(params.sort);
+            query = query.sort(params.sort);
         }
         if (params.limit !== undefined) {
-            query.limit(params.limit);
+            query = query.limit(params.limit);
         }
 
         query.exec(callback);

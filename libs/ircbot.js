@@ -1,6 +1,7 @@
 const irc = require("irc");
 
-let notifications = require('./notifications');
+let notifications = require('./notifications'),
+    statistics = require('./statistics');
 
 class IrcBot {
     constructor(db) {
@@ -19,6 +20,7 @@ class IrcBot {
         this.pause = false;
         this.Artists = new notifications('artist', db);
         this.Songs = new notifications('songName', db);
+        this.Statistics = new statistics(db);
         this._currentSong;
 
         // Create the bot name
@@ -41,34 +43,32 @@ class IrcBot {
 
         // Listen for any message, say to him/her in the room
         this.bot.addListener("message", function(from, to, text, message) {
+            let _cmd = text.split(' ')[0];
 
-            switch (text) {
-                case '!listening':
-                    // playing(say);
-                    break;
-                case '!stop':
-                    that.pause = true;
-                    that.bot.say(that.channel, 'Ok... tu préfères Motley Crue...');
-                    break;
-                case '!start':
-                    that.pause = false;
-                    that.bot.say(that.channel, 'We are Motörhead and we play Rock\'n\'Roll!');
-                    break;
+            switch (_cmd) {
                 case '!last':
-                    that.db.last(function(message) {
-                        that.publicMessage(message);
+                    that.Statistics.action(from, text, that._currentSong, function(err, res) {
+                        if (!err && res.length > 0) {
+                            res.forEach(function(row) {
+                                that.publicMessage(row.text);
+                            });
+                        }
                     });
                     break;
-                default:
-                    if (text.indexOf('!artist') === 0) {
-                        that.Artists.action(from, text, that._currentSong, function(to, msg) {
+                case '!artists':
+                    that.Artists.action(from, text, that._currentSong, function(to, msg) {
+                        if (msg !== undefined) {
                             that.pm(to, msg);
-                        });
-                    } else if (text.indexOf('!song') === 0) {
-                        that.Songs.action(from, text, that._currentSong, function(to, msg) {
-                            that.pm(to.msg);
-                        });
-                    }
+                        }
+                    });
+                    break;
+                case '!songs':
+                    that.Songs.action(from, text, that._currentSong, function(to, msg) {
+                        if (msg !== undefined) {
+                            that.pm(to, msg);
+                        }
+                    });
+                    break;
             }
         });
 
@@ -79,13 +79,15 @@ class IrcBot {
 
     publicMessage(message) {
         let that = this;
-        if (!that.pause) {
+        if (!that.pause && message !== undefined) {
             that.bot.say(that.channel, message);
         }
     }
 
     pm(who, msg) {
-        this.bot.say(who, msg);
+        if (msg !== undefined) {
+            this.bot.say(who, msg);
+        }
     }
 
     currentSong(currentSong) {
