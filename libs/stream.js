@@ -21,7 +21,7 @@ class Stream {
         request.post({
             url: that.url
         }, function(error, response, body) {
-            if (response.statusCode === 200) {
+            if (!error && response.statusCode === 200) {
                 let res = JSON.parse(body);
                 if (res.artist !== undefined && res.songName !== undefined) {
                     callback(null, res);
