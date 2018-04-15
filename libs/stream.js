@@ -36,35 +36,34 @@ class Stream {
 
     watcher() {
         let that = this;
-        that.getStream(function(error, res) {
-            if (!error) {
-                that.currentSong = res;
-                that.bot.currentSong(that.currentSong);
-                if (that.previousSong !== res.songName) {
-                    that.previousSong = res.songName;
-                    that.db.savePlayed(res);
-                    that.bot.publicMessage('Now playing: ' + res.artist + ' - ' + res.songName);
-                    that.artist.autoNotifyFor(res.artist, function(res) {
-                        if (res !== undefined) {
-                            res.forEach(function(row) {
-                                that.bot.pm(row.to, row.msg);
-                            });
-                        }
-                    });
-                    that.song.autoNotifyFor(res.songName, function(res) {
-                        if (res) {
-                            res.forEach(function(row) {
-                                that.bot.pm(row.to, row.msg);
-                            });
-                        }
-                    });
-                }
-            }
 
-            setTimeout(function() {
-                that.watcher();
-            }, 5000);
-        });
+        setInterval(function() {
+            that.getStream(function(error, res) {
+                if (!error) {
+                    that.currentSong = res;
+                    that.bot.currentSong(that.currentSong);
+                    if (that.previousSong !== res.songName) {
+                        that.previousSong = res.songName;
+                        that.db.savePlayed(res);
+                        that.bot.publicMessage('Now playing: ' + res.artist + ' - ' + res.songName);
+                        that.artist.autoNotifyFor(res.artist, function(res) {
+                            if (res !== undefined) {
+                                res.forEach(function(row) {
+                                    that.bot.pm(row.to, row.msg);
+                                });
+                            }
+                        });
+                        that.song.autoNotifyFor(res.songName, function(res) {
+                            if (res) {
+                                res.forEach(function(row) {
+                                    that.bot.pm(row.to, row.msg);
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+        }, 4000);
     }
 }
 
