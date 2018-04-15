@@ -46,12 +46,21 @@ class IrcBot {
             let _cmd = text.split(' ')[0];
 
             switch (_cmd) {
+                case '!stats':
                 case '!last':
                     that.Statistics.action(from, text, that._currentSong, function(err, res) {
                         if (!err && res.length > 0) {
-                            res.forEach(function(row) {
-                                that.publicMessage(row.text);
-                            });
+                            let _max = res.length,
+                                _current = 0,
+                                _call = setInterval(function() {
+                                    that.publicMessage(res[_current].text);
+                                    _current++;
+                                    if (_current === _max) {
+                                        clearInterval(_call);
+                                    }
+                                }, 750);
+                        } else {
+                            that.publicMessage(err);
                         }
                     });
                     break;
