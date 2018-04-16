@@ -88,7 +88,7 @@ class IrcBot {
 
     publicMessage(message) {
         let that = this;
-        if (!that.pause && message !== undefined) {
+        if (!that.pause && message !== undefined && message !== null) {
             that.bot.say(that.channel, message);
         }
     }
