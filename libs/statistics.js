@@ -1,7 +1,5 @@
 let moment = require('moment'),
-    formatString = require('./helpers').formatString,
-    keysrt = require('./helpers').keysrt,
-    srt = require('./helpers').srt;
+    formatString = require('./helpers').formatString;
 
 moment.locale('fr');
 
@@ -24,12 +22,13 @@ class Statistics {
                 }
                 break;
             case '!stats':
-                that.stats(text.substr(6), callback);
+                that.stats(text.substr(7), callback);
                 break;
         }
     }
 
     stats(period, callback) {
+        console.log('-' + period + '-');
         let that = this,
             query = {
                 find: {},
@@ -37,9 +36,12 @@ class Statistics {
                     artists: 'asc'
                 }
             };
-
         if (period !== null) {
-            period = period.replace(/ /g, '');
+            let _firstSpace = period.indexOf(' '),
+                _artist = (_firstSpace > -1) ? period.substr(_firstSpace + 1) : null;
+
+            period = period.split(' ')[0];
+
             let start = moment().startOf('day'),
                 end = moment();
             switch (period) {
@@ -72,6 +74,10 @@ class Statistics {
                 }
             };
 
+            if (_artist !== null) {
+                query.find['artist'] = formatString(_artist);
+            }
+
             that.db.find('histories', query, function(err, res) {
                 if (err) {
                     callback('#500 - Impossible de te répondre pour le moment !', null);
@@ -80,37 +86,47 @@ class Statistics {
                         _max = 16,
                         _length = res.length;
 
-                    for (let i = 0; i < _length; i++) {
-                        let _found = false;
-                        for (let j = 0; j < _statistics.length; j++) {
-                            if (_statistics[j].artist === res[i].artist) {
-                                _statistics[j].played++;
-                                _found = true;
+
+                    if (res.length > 0) {
+                        for (let i = 0; i < _length; i++) {
+                            let _found = false;
+                            for (let j = 0; j < _statistics.length; j++) {
+                                if (_statistics[j].artist.toLowerCase() === res[i].artist.toLowerCase()) {
+                                    _statistics[j].played++;
+                                    _found = true;
+                                    break;
+                                }
+                            }
+                            if (_found === false) {
+                                _statistics.push({
+                                    artist: res[i].artist,
+                                    songName: res[i].songName,
+                                    played: 1
+                                });
+                            }
+                        }
+
+                        _statistics.sort(function(a, b) {
+                            return a.played < b.played ? 1 : -1;
+                        });
+
+                        for (let i = 0; i < _statistics.length; i++) {
+                            _statistics[i].text = _statistics[i].artist + ' a été entendu ' + _statistics[i].played + ' fois';
+
+                            if (i > _max) {
                                 break;
                             }
                         }
-                        if (_found === false) {
-                            _statistics.push({
-                                artist: res[i].artist,
-                                songName: res[i].songName,
-                                played: 1
-                            });
-                        }
+                    } else {
+                        _statistics = [{
+                            text: 'Aucune stat à afficher pour ces critères'
+                        }];
                     }
 
-                    _statistics.sort(function(a, b) {
-                        return a.played < b.played ? 1 : -1;
+                    callback(null, {
+                        rows: _statistics,
+                        to: 'public'
                     });
-
-                    for (let i = 0; i < _statistics.length; i++) {
-                        _statistics[i].text = _statistics[i].artist + ' a été entendu ' + _statistics[i].played + ' fois';
-
-                        if (i > _max) {
-                            break;
-                        }
-                    }
-
-                    callback(null, _statistics);
                 }
             });
         }
@@ -139,15 +155,22 @@ class Statistics {
                 callback('#500 - Impossible de te répondre pour le moment !', null);
             } else {
                 if (res.length === 0) {
-                    callback(null, [{
-                        text: 'A priori ' + search + ' n\'a jamais était joué :/'
-                    }]);
+                    callback(null, {
+                        rows: [{
+                            text: 'A priori ' + search + ' n\'a jamais était joué :/'
+                        }],
+                        to: 'public'
+                    });
                 } else {
                     res = res[0];
 
                     let date = moment(res.createdAt).format('DD MMMM YYYY à HH:mm');
-                    res.text = search + ' a été joué pour la dernière fois sur cette putain de radio le ' + date;
-                    callback(null, [res]);
+                    callback(null, {
+                        rows: [{
+                            text: search + ' a été joué pour la dernière fois sur cette putain de radio le ' + date
+                        }],
+                        to: 'public'
+                    });
                 }
             }
         });
@@ -173,7 +196,10 @@ class Statistics {
                     });
                 });
             }
-            callback(err, results);
+            callback(null, {
+                rows: results,
+                to: 'public'
+            });
         });
     }
 }

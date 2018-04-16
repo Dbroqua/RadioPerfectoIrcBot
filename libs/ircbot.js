@@ -49,11 +49,11 @@ class IrcBot {
                 case '!stats':
                 case '!last':
                     that.Statistics.action(from, text, that._currentSong, function(err, res) {
-                        if (!err && res.length > 0) {
-                            let _max = res.length,
+                        if (!err && res.rows.length > 0) {
+                            let _max = res.rows.length,
                                 _current = 0,
                                 _call = setInterval(function() {
-                                    that.publicMessage(res[_current].text);
+                                    that.publicMessage(res.rows[_current].text);
                                     _current++;
                                     if (_current === _max) {
                                         clearInterval(_call);
@@ -88,7 +88,7 @@ class IrcBot {
 
     publicMessage(message) {
         let that = this;
-        if (!that.pause && message !== undefined) {
+        if (!that.pause && message !== undefined && message !== null) {
             that.bot.say(that.channel, message);
         }
     }
