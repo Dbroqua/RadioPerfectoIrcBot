@@ -110,7 +110,10 @@ class Statistics {
                         }
                     }
 
-                    callback(null, _statistics);
+                    callback(null, {
+                        rows: _statistics,
+                        to: 'public'
+                    });
                 }
             });
         }
@@ -139,15 +142,22 @@ class Statistics {
                 callback('#500 - Impossible de te répondre pour le moment !', null);
             } else {
                 if (res.length === 0) {
-                    callback(null, [{
-                        text: 'A priori ' + search + ' n\'a jamais était joué :/'
-                    }]);
+                    callback(null, {
+                        rows: [{
+                            text: 'A priori ' + search + ' n\'a jamais était joué :/'
+                        }],
+                        to: 'public'
+                    });
                 } else {
                     res = res[0];
 
                     let date = moment(res.createdAt).format('DD MMMM YYYY à HH:mm');
-                    res.text = search + ' a été joué pour la dernière fois sur cette putain de radio le ' + date;
-                    callback(null, [res]);
+                    callback(null, {
+                        rows: [{
+                            text: search + ' a été joué pour la dernière fois sur cette putain de radio le ' + date
+                        }],
+                        to: 'public'
+                    });
                 }
             }
         });
@@ -173,7 +183,10 @@ class Statistics {
                     });
                 });
             }
-            callback(err, results);
+            callback(null, {
+                rows: results,
+                to: 'public'
+            });
         });
     }
 }
