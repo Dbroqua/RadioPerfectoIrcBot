@@ -28,7 +28,6 @@ class Statistics {
     }
 
     stats(period, callback) {
-        console.log('-' + period + '-');
         let that = this,
             query = {
                 find: {},
@@ -57,6 +56,10 @@ class Statistics {
                     break;
                 case 'week':
                     start = start.startOf('week');
+                    break;
+                case 'lastweek':
+                    start = start.subtract(1, 'w').startOf('week');
+                    end = end.subtract(1, 'w').endOf('week');
                     break;
                 case 'month':
                     start = start.startOf('month');
