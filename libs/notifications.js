@@ -60,7 +60,6 @@ class Notifications {
         let that = this,
             item = {
                 user: from,
-                notification: notification,
                 property: that.type,
                 value: formatString(data[that.attribute])
             },
@@ -73,9 +72,10 @@ class Notifications {
             if (err) {
                 callback(from, '#500 - Impossible de sauvegarder cette demande (1)');
             } else {
-                if (res.length === 0) {
-                    item.value = data[that.attribute];
+                item.notification = notification;
+                item.value = data[that.attribute];
 
+                if (res.length === 0) {
                     that.db.save('notifications', item, function(err) {
                         if (err) {
                             callback(from, '#500 - Impossible de sauvegarder cette demande (2)');
@@ -84,7 +84,17 @@ class Notifications {
                         }
                     });
                 } else {
-                    callback(from, data[that.attribute] + ' est déja dans ta liste des ' + notification);
+                    if (res[0].notification !== notification) {
+                        that.db.save('notifications', item, function(err) {
+                            if (err) {
+                                callback(from, '#500 - Impossible de sauvegarder cette demande (3)');
+                            } else {
+                                callback(from, data[that.attribute] + ' correctement déplacé de la liste des ' + res[0].notification + ' vers ' + notification);
+                            }
+                        });
+                    } else {
+                        callback(from, data[that.attribute] + ' est déja dans ta liste des ' + notification);
+                    }
                 }
             }
         });
