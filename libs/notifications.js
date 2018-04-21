@@ -85,7 +85,9 @@ class Notifications {
                     });
                 } else {
                     if (res[0].notification !== notification) {
-                        that.db.save('notifications', item, function(err) {
+                        that.db.update('notifications', res[0]._id, {
+                            notification: notification
+                        }, function(err) {
                             if (err) {
                                 callback(from, '#500 - Impossible de sauvegarder cette demande (3)');
                             } else {

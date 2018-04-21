@@ -63,6 +63,16 @@ class DB {
         });
     }
 
+    update(collection, item, values, callback) {
+        models[collection].update({
+            _id: item
+        }, {
+            '$set': values
+        }, function(err) {
+            callback(err);
+        });
+    }
+
     remove(collection, values, callback) {
         models[collection].remove(values, callback);
     }
