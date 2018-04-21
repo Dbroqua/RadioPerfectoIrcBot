@@ -10,6 +10,15 @@ class Notifications {
     action(from, text, data, callback) {
         let _actions = text.split(' '),
             that = this;
+
+        // Custom artist/song set
+        if (_actions.length > 3) {
+            data = '';
+            for (let i = 3; i < _actions.length; i++) {
+                data += (data === '' ? '' : ' ') + _actions[i];
+            }
+        }
+
         switch (_actions[1]) {
             case 'add':
                 switch (_actions[2]) {
