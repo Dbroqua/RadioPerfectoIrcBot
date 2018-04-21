@@ -49,10 +49,10 @@ class IrcBot {
                 case '!blind':
                     switch (text.split(' ')[1]) {
                         case 'start':
-                            that.pause = false;
+                            that.pause = true;
                             break;
                         case 'stop':
-                            that.pause = true;
+                            that.pause = false;
                             break;
                     }
                     break;
