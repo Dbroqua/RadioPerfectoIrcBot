@@ -13,10 +13,12 @@ class Notifications {
 
         // Custom artist/song set
         if (_actions.length > 3) {
-            data = '';
+            let value = '';
             for (let i = 3; i < _actions.length; i++) {
-                data += (data === '' ? '' : ' ') + _actions[i];
+                value += (value === '' ? '' : ' ') + _actions[i];
             }
+
+            data[that.attribute] = value;
         }
 
         switch (_actions[1]) {
