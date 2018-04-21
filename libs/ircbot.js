@@ -46,6 +46,16 @@ class IrcBot {
             let _cmd = text.split(' ')[0];
 
             switch (_cmd) {
+                case '!blind':
+                    switch (text.split(' ')[1]) {
+                        case 'start':
+                            that.pause = false;
+                            break;
+                        case 'stop':
+                            that.pause = true;
+                            break;
+                    }
+                    break;
                 case '!stats':
                 case '!last':
                     that.Statistics.action(from, text, that._currentSong, function(err, res) {
