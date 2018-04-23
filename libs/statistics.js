@@ -160,7 +160,7 @@ class Statistics {
                 if (res.length === 0) {
                     callback(null, {
                         rows: [{
-                            text: 'A priori ' + search + ' n\'a jamais était joué :/'
+                            text: 'A priori ' + search + ' n\'a jamais été joué, t\'es sur que c\'est du rock ?'
                         }],
                         to: 'public'
                     });
