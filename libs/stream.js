@@ -22,8 +22,14 @@ class Stream {
             url: that.url
         }, function(error, response, body) {
             if (!error && response.statusCode === 200) {
-                let res = JSON.parse(body);
-                if (res.artist !== undefined && res.songName !== undefined) {
+                let res = null;
+                try {
+                    res = JSON.parse(body);
+                } catch (e) {
+                    console.log(body);
+                }
+
+                if (res !== null && res.artist !== undefined && res.songName !== undefined) {
                     callback(null, res);
                 } else {
                     callback('Some good song... maybe :/', null);
