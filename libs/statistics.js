@@ -78,11 +78,18 @@ class Statistics {
             };
 
             if (_artist !== null) {
-                query.find['artist'] = formatString(_artist);
+                query.find['$or'] = [{
+                    'artist': formatString(_artist)
+                }, {
+                    'songName': formatString(_artist)
+                }];
             }
+
+            console.log(query);
 
             that.db.find('histories', query, function(err, res) {
                 if (err) {
+                    console.log(err);
                     callback('#500 - Impossible de te répondre pour le moment !', null);
                 } else {
                     let _statistics = [],
