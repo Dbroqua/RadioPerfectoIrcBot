@@ -8,6 +8,46 @@ class Statistics {
         this.db = db;
     }
 
+    _setPeriodFilter(period) {
+        period = period.split(' ')[0];
+
+        let start = moment().startOf('day'),
+            end = moment();
+        switch (period) {
+            case 'year':
+                start = start.startOf('year');
+                break;
+            case 'today':
+                start = start.startOf('day');
+                break;
+            case 'yesterday':
+                start = start.subtract(1, 'd').startOf('day');
+                end = end.subtract(1, 'd').endOf('day');
+                break;
+            case 'week':
+                start = start.startOf('week');
+                break;
+            case 'lastweek':
+                start = start.subtract(1, 'w').startOf('week');
+                end = end.subtract(1, 'w').endOf('week');
+                break;
+            case 'month':
+                start = start.startOf('month');
+                break;
+            case 'lastmonth':
+                start = start.subtract(1, 'm').startOf('month');
+                end = end.subtract(1, 'm').endOf('month');
+                break;
+        }
+
+        return {
+            createdAt: {
+                $gte: start.format(),
+                $lte: end.format()
+            }
+        };
+    }
+
     action(from, text, data, callback) {
         let that = this,
             _cmd = text.split(' ')[0],
@@ -20,6 +60,9 @@ class Statistics {
                 } else {
                     that.last10songs(callback);
                 }
+                break;
+            case '!list':
+                that.list(text.substr(6), callback);
                 break;
             case '!stats':
                 that.stats(text.substr(7), callback);
@@ -39,43 +82,7 @@ class Statistics {
             let _firstSpace = period.indexOf(' '),
                 _artist = (_firstSpace > -1) ? period.substr(_firstSpace + 1) : null;
 
-            period = period.split(' ')[0];
-
-            let start = moment().startOf('day'),
-                end = moment();
-            switch (period) {
-                case 'year':
-                    start = start.startOf('year');
-                    break;
-                case 'today':
-                    start = start.startOf('day');
-                    break;
-                case 'yesterday':
-                    start = start.subtract(1, 'd').startOf('day');
-                    end = end.subtract(1, 'd').endOf('day');
-                    break;
-                case 'week':
-                    start = start.startOf('week');
-                    break;
-                case 'lastweek':
-                    start = start.subtract(1, 'w').startOf('week');
-                    end = end.subtract(1, 'w').endOf('week');
-                    break;
-                case 'month':
-                    start = start.startOf('month');
-                    break;
-                case 'lastmonth':
-                    start = start.subtract(1, 'm').startOf('month');
-                    end = end.subtract(1, 'm').endOf('month');
-                    break;
-            }
-
-            query.find = {
-                createdAt: {
-                    $gte: start.format(),
-                    $lte: end.format()
-                }
-            };
+            query.find = this._setPeriodFilter(period);
 
             if (_artist !== null) {
                 query.find['$or'] = [{
@@ -135,6 +142,52 @@ class Statistics {
 
                     callback(null, {
                         rows: _statistics,
+                        to: 'public'
+                    });
+                }
+            });
+        }
+    }
+
+    list(period, callback) {
+        let that = this,
+            query = {
+                find: {},
+                sort: {
+                    createdAt: 'asc'
+                }
+            };
+        if (period !== null) {
+            let _firstSpace = period.indexOf(' '),
+                _artist = (_firstSpace > -1) ? period.substr(_firstSpace + 1) : null;
+
+            query.find = this._setPeriodFilter(period);
+
+            if (_artist !== null) {
+                query.find['$or'] = [{
+                    'artist': formatString(_artist)
+                }, {
+                    'songName': formatString(_artist)
+                }];
+            }
+
+            console.log(query);
+
+            that.db.find('histories', query, function(err, res) {
+                if (err) {
+                    console.log(err);
+                    callback('#500 - Impossible de te répondre pour le moment !', null);
+                } else {
+                    let results = [];
+
+                    res.forEach(function(result) {
+                        results.push({
+                            text: "- " + result.songName + ' le ' + moment(result.createdAt).format('D MMMM YYYY à H:m')
+                        });
+                    });
+
+                    callback(null, {
+                        rows: results,
                         to: 'public'
                     });
                 }

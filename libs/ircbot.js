@@ -57,6 +57,7 @@ class IrcBot {
                     }
                     break;
                 case '!stats':
+                case '!list':
                 case '!last':
                     that.Statistics.action(from, text, that._currentSong, function(err, res) {
                         if (!err && res.rows.length > 0) {
