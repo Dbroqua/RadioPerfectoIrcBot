@@ -80,19 +80,17 @@ class Statistics {
             };
         if (period !== null) {
             let _firstSpace = period.indexOf(' '),
-                _artist = (_firstSpace > -1) ? period.substr(_firstSpace + 1) : null;
+                _search = (_firstSpace > -1) ? period.substr(_firstSpace + 1) : null;
 
             query.find = this._setPeriodFilter(period);
 
-            if (_artist !== null) {
+            if (_search !== null) {
                 query.find['$or'] = [{
-                    'artist': formatString(_artist)
+                    'artist': formatString(_search)
                 }, {
-                    'songName': formatString(_artist)
+                    'songName': formatString(_search)
                 }];
             }
-
-            console.log(query);
 
             that.db.find('histories', query, function(err, res) {
                 if (err) {
@@ -128,7 +126,7 @@ class Statistics {
                         });
 
                         for (let i = 0; i < _statistics.length; i++) {
-                            _statistics[i].text = _statistics[i].artist + ' a été entendu ' + _statistics[i].played + ' fois';
+                            _statistics[i].text = _search + ' a été entendu ' + _statistics[i].played + ' fois';
 
                             if (i > _max) {
                                 break;
