@@ -169,19 +169,21 @@ class Statistics {
                 }];
             }
 
-            console.log(query);
-
             that.db.find('histories', query, function(err, res) {
                 if (err) {
                     console.log(err);
                     callback('#500 - Impossible de te répondre pour le moment !', null);
                 } else {
-                    let results = [];
+                    let _played = [],
+                        results = [];
 
                     res.forEach(function(result) {
-                        results.push({
-                            text: "- " + result.songName + ' le ' + moment(result.createdAt).format('D MMMM YYYY à H:m')
-                        });
+                        if (_played.indexOf(result.songName) === -1) {
+                            _played.push(result.songName);
+                            results.push({
+                                text: "- " + result.songName
+                            });
+                        }
                     });
 
                     callback(null, {
