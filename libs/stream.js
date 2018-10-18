@@ -8,7 +8,8 @@ class Stream {
         this.db = db;
         this.artist = new notifications('artist', db);
         this.song = new notifications('songName', db);
-        this.url = "https://rc1.nobexinc.com//nowplaying.ashx?stationid=70642";
+        // this.url = "https://rc1.nobexinc.com//nowplaying.ashx?stationid=70642";
+        this.url = "https://parser.radiovolna.net/stations/last";
         this.currentSong = null;
         this.previousSong = null;
 
@@ -19,12 +20,21 @@ class Stream {
         let that = this;
 
         request.post({
-            url: that.url
-        }, function(error, response, body) {
+            url: that.url,
+            form: {
+                streamId: 405927,
+                streamUrl: 'http://radioperfecto.net-radio.fr/perfecto.aac'
+            }
+        }, 
+        function(error, response, body) {
             if (!error && response.statusCode === 200) {
                 let res = null;
                 try {
                     res = JSON.parse(body);
+                    res = {
+                        songName: res.data.song,
+                        artist: res.data.artist
+                    }
                 } catch (e) {
                     console.log(body);
                 }
